@@ -19,12 +19,17 @@ def login():
         password = request.json.get("password")
         find_user = User.query.filter_by(email = email_value).first()
 
+        if not find_user:
+         return jsonify("no user found, try again!!"), 400
+        
         if not check_password_hash(find_user.password, password):
-         return jsonify("Incorrect password!")
+         return jsonify("Incorrect password!"), 500
 
         token = create_access_token(identity = email_value)
 
         return jsonify(token_value = token), 200
+
+# can turn into an object to make sure message can be shown in case incorrect password.
 
 
 # look up api endpoint index and why that is used

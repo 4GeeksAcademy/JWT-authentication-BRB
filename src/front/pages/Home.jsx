@@ -1,10 +1,16 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import rigoImageUrl from "../assets/img/rigo-baby.jpg";
 import useGlobalReducer from "../hooks/useGlobalReducer.jsx";
+import { useNavigate } from "react-router-dom";
 
 export const Home = () => {
 
 	const { store, dispatch } = useGlobalReducer()
+	const navigate = useNavigate()
+	const [email, setEmail] = useState("")
+	const [password, setPassword] = useState("")
+	const [message, setMessage] = useState("")
+	
 
 	const loadMessage = async () => {
 		try {
@@ -28,25 +34,94 @@ export const Home = () => {
 
 	}
 
+	const handleLogin = ()=>{
+
+		const option = {
+			method: 'POST',
+			body: JSON.stringify({
+				"email": email,
+				"password": password
+			  }), 
+			headers: {
+			'Content-Type': 'application/json'
+			}
+	
+		}
+		fetch(import.meta.env.VITE_BACKEND_URL+"api/login", option) 
+		.then((resp)=>{
+			return resp.json()
+		})
+		.then((data) => {
+			dispatch({type: "updateToken", payload: data.token_value }) 
+			//  || when logged in, this should update token based off this dispatch & token recieved to update store variable.
+				navigate("/demo")
+		})
+
+	}
+
+
+
+
+	const handleCreate = ()=>{
+
+		const option = {
+			method: 'POST',
+			body: JSON.stringify({
+				"email": email,
+				"password": password
+			  }), 
+			headers: {
+			'Content-Type': 'application/json'
+			}
+	
+		}
+		fetch(import.meta.env.VITE_BACKEND_URL+"api/signup", option) 
+		.then((resp)=>{
+			return resp.json()
+		})
+		.then((data) => {
+			console.log("DATA HERE!!!!!!",data)
+			//  || when logged in, this should update token based off this dispatch & token recieved to update store variable.
+
+		})
+
+	}
+
 	useEffect(() => {
 		loadMessage()
+		sessionStorage.setItem("TEST ITEM!!!!","TEST1")
 	}, [])
 
+	const testSession = sessionStorage.getItem["TEST ITEM!!!!"]
+
 	return (
-		<div className="text-center mt-5">
-			<h1 className="display-4">Hello Rigo!!</h1>
-			<p className="lead">
-				<img src={rigoImageUrl} className="img-fluid rounded-circle mb-3" alt="Rigo Baby" />
-			</p>
-			<div className="alert alert-info">
-				{store.message ? (
-					<span>{store.message}</span>
-				) : (
-					<span className="text-danger">
-						Loading message from the backend (make sure your python 🐍 backend is running)...
-					</span>
-				)}
+		<div>
+			<input onChange={(e) => setEmail(e.target.value)} value={email} type="text" placeholder="Email" />
+            <input onChange={(e) => setPassword(e.target.value)} value={password}  type="text" placeholder="Password" />
+
+			<button onClick= {() => handleLogin()}>
+					LogIn
+			</button>
+
+
+			<div className= "signup">
+				<input onChange={(e) => setEmail(e.target.value)} value = {email} type="text" placeholder="Sign Up Email"/>
+				<input onChange={(e) => setPassword(e.target.value)} value= {password} type="text" placeholder="password"/> 
+				<button onClick={() =>handleCreate()}>
+				Sign Up
+				</button>
+
+
+				<button onClick={() =>sessionStorage.setItem("TEST ITEM!!!!", "TEST2")} >
+				 Here is the test: {testSession}
+				</button>
 			</div>
+
+		{/* <span>
+			{
+				message
+			}
+		</span> */}
 		</div>
-	);
-}; 
+	)
+};
